@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription</title>
+</head>
+<body>
+  <h2>Inscription</h2>
+  <form id="registerForm">
+    <input type="text" id="prenom" placeholder="Prenom" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="mot de passe" placeholder="Mot de passe" required />
+    <button type="submit">S'inscrire</button>
+  </form>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const nome = document.getElementById('prenom').value;
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('mot de passe').value;
+
+      const response = await fetch('http://localhost:3000/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, senha })
+      });
+
+      const data = await response.json();
+      alert(data.message);
+    });
+  </script>
+</body>
+</html>
