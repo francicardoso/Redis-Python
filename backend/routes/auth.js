@@ -5,39 +5,44 @@ const db = require("../models/db");
 
 const router = express.Router();
 
-// Rota de registro
+
 router.post("/register", async (req, res) => {
-  const { nome, email, senha } = req.body;
+  try {
+    const { nome, email, senha } = req.body;
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ error: "Tous les champs sont obligatoires" });
+    }
 
-  // Criptografar a senha
-  const hashedPassword = await bcrypt.hash(senha, 10);
+    const hashedPassword = await bcrypt.hash(senha, 10);
+    const query = "INSERT INTO utilisateurs (nome, email, senha) VALUES (?, ?, ?)";
+    
+    db.query(query, [nome, email, hashedPassword], (err) => {
+      if (err) return res.status(500).json({ error: "Erreur lors de l'inscription de l'utilisateur" });
+      res.status(201).json({ message: "Utilisateur inscrit avec succès!" });
+    });
 
-  // Salvar no banco
-  const query = "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)";
-  db.query(query, [nome, email, hashedPassword], (err, result) => {
-    if (err) return res.status(500).json({ error: "Erro no servidor" });
-    res.status(201).json({ message: "Usuário registrado!" });
-  });
+  } catch (error) {
+    res.status(500).json({ error: "Erreur interne du serveur" });
+  }
 });
 
-// Rota de login
 router.post("/login", (req, res) => {
   const { email, senha } = req.body;
 
-  // Verificar usuário no banco
-  const query = "SELECT * FROM usuarios WHERE email = ?";
+  // Vérifier l'utilisateur dans la base de données
+  const query = "SELECT * FROM utilisateurs WHERE email = ?";
   db.query(query, [email], async (err, results) => {
-    if (err) return res.status(500).json({ error: "Erro no servidor" });
-    if (results.length === 0) return res.status(401).json({ error: "Usuário não encontrado" });
+    if (err) return res.status(500).json({ error: "Erreur du serveur" });
+    if (results.length === 0) return res.status(401).json({ error: "Utilisateur non trouvé" });
 
-    const usuario = results[0];
+    const utilisateur = results[0];
 
-    // Verificar senha
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaCorreta) return res.status(401).json({ error: "Senha incorreta" });
+    // Vérifier le mot de passe
+    const motDePasseCorrect = await bcrypt.compare(senha, utilisateur.senha);
+    if (!motDePasseCorrect) return res.status(401).json({ error: "Mot de passe incorrect" });
 
-    // Gerar o token JWT
-    const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    // Générer le jeton JWT
+    const token = jwt.sign({ id: utilisateur.id }, process.env.JWT_SECRET, { expiresIn: "1h" });
     res.json({ token });
   });
 });

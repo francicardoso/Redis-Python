@@ -9,7 +9,7 @@
   <form id="registerForm">
     <input type="text" id="prenom" placeholder="Prenom" required />
     <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="mot de passe" placeholder="Mot de passe" required />
+    <input type="password" id="motDePasse" placeholder="Mot de passe" required />
     <button type="submit">S'inscrire</button>
   </form>
 
@@ -19,7 +19,7 @@
 
       const nome = document.getElementById('prenom').value;
       const email = document.getElementById('email').value;
-      const senha = document.getElementById('mot de passe').value;
+      const senha = document.getElementById('motDePasse').value;
 
       const response = await fetch('http://localhost:3000/auth/register', {
         method: 'POST',
