@@ -21,3 +21,7 @@ app.listen(PORT, () => {
 app.get("/", (req, res) => {
     res.send("Serveur ok");
   });
+
+  app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "login.html"));
+});
