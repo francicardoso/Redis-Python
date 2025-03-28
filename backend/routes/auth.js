@@ -8,16 +8,19 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
   try {
-    const { nome, email, senha } = req.body;
-    if (!nome || !email || !senha) {
+    const { prenom, nom, email, senha } = req.body;  // Ajuste para receber prenom e nom
+    if (!prenom || !nom || !email || !senha) {
       return res.status(400).json({ error: "Tous les champs sont obligatoires" });
     }
 
     const hashedPassword = await bcrypt.hash(senha, 10);
-    const query = "INSERT INTO utilisateurs (nome, email, senha) VALUES (?, ?, ?)";
+    const query = "INSERT INTO utilisateurs (prenom, nom, email, senha) VALUES (?, ?, ?, ?)";
     
-    db.query(query, [nome, email, hashedPassword], (err) => {
-      if (err) return res.status(500).json({ error: "Erreur lors de l'inscription de l'utilisateur" });
+    db.query(query, [prenom, nom, email, hashedPassword], (err) => {
+      if (err) {
+        console.error("Database error:", err); // Adicionando log detalhado para o erro
+        return res.status(500).json({ error: "Erreur lors de l'inscription de l'utilisateur", details: err });
+      }
       res.status(201).json({ message: "Utilisateur inscrit avec succès!" });
     });
 
@@ -25,6 +28,7 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ error: "Erreur interne du serveur" });
   }
 });
+
 
 router.post("/login", (req, res) => {
   const { email, senha } = req.body;
